@@ -53,11 +53,9 @@
 
 **AFFECT -> := EXPR
 
-**STEP -> with EXPR
-
-**STEP -> ''
-
 **COND -> EXPR OP EXPR
+
+**OP-> OPRELAT |OPARITH | OPLOGIC
 
 **OPRELAT -> = | <| > |<= | >= | /=
 
