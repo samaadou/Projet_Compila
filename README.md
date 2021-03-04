@@ -82,3 +82,37 @@
 **CHIFFRE->     0|..|9
 
 **LETTRE -> a|b|..|z|A|..|Z
+--------------------------------------------------------------------------------------------------------------
+PORT ::= port ( DDRX : DIR ; { DDRX : DIR ; } ) { FONCT } PROGRAM endProgram
+DDRX ::= DDR LETTER DIGIT
+DIR ::= IN | OUT
+FONCT ::= VARTYPE ID ( PARAM ) : BLOCKF endFonct 
+PROGRAM ::= program : BLOCKF
+PARAM ::= VARTYPE ID { , VARTYPE ID }
+BLOCKF ::= DECLVAR |  INSTF ; | ɛ
+DECLVAR ::= { static } { const } VARTYPE ID { = EXP } { , VARTYPE ID { = EXP } } ; BLOCKF
+INSTF ::= INST | EXPR | RETURN { EXPR }
+INST ::= BLOCKF | LOOP | IF | READ | WRITE | DELAY | ɛ
+DELAY ::= wait ( NUM ) 
+LOOP ::= WHILE | DO | FOR 
+WHILE ::= while ( EXP ) : INSTF endWhile
+DO ::= do INSTF while ( EXP ) endDo
+FOR ::= for ( NUM ; NUM ; { NUM ; } ) : INSTF endFor
+IF ::= if ( EXP ) : INSTF { else INSTF } endIf 
+READ ::= read ( ID )
+WRITE ::= write ( ID )
+EXP ::= ID | AFFECT | AFFECTARITH | AFFECTLOG | CALLFONC | PORTX | PINX
+PORTX ::= PORT LETTER DIGIT
+PINX::= PIN LETTER DIGIT
+AFFECT ::= EXP <- EXP
+AFFECTARITH ::= EXP ARITH EXP | ~ EXP
+ARITH ::= + | - | * | / | % 
+AFFECTLOG ::= EXP LOG EXP | ! EXP COMP EXP 
+LOG ::= && | || 
+COMP ::= < | ≤ | > | ≥ | = | != 
+CALLFONC ::= EXP ( EXP { , EXP } )
+VARTYPE ::= { unsigned | signed } char | { unsigned | signed } int | float | double | void
+ID ::= LETTER { LETTER | DIGIT }
+NUM ::= DIGIT { DIGIT }
+DIGIT ::= 0|..|9
+LETTER ::= a|b|..|z|A|..|Z
