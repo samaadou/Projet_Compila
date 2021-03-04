@@ -83,8 +83,8 @@
 
 **LETTRE -> a|b|..|z|A|..|Z
 --------------------------------------------------------------------------------------------------------------
-PORT ::= port ( DDRX : DIR ; { DDRX : DIR ; } ) { FONCT } PROGRAM endProgram
-DDRX ::= DDR LETTER DIGIT
+**PORT ::= port ( DDRX : DIR ; { DDRX : DIR ; } ) { FONCT } PROGRAM endProgram
+**DDRX ::= DDR LETTER DIGIT
 DIR ::= IN | OUT
 FONCT ::= VARTYPE ID ( PARAM ) : BLOCKF endFonct 
 PROGRAM ::= program : BLOCKF
