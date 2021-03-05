@@ -1,0 +1,6 @@
+port ( DDRB3 :  IN ;)
+
+Program :
+int x ;
+x <- <= read ( PINB ) ;
+endProgram
