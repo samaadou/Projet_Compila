@@ -3,15 +3,25 @@ Grammaire Utilise :
 **PORTT ::= port ( DDRX : DIR ; { DDRX : DIR ; } ) { FONCT } PROGRAM endProgram
 
 **DDRX ::= DDR LETTER DIGIT
+
 **DIR ::= IN | OUT
+
 **FONCT ::= VARTYPE ID ( PARAM ) : BLOCKF return EXP endFonct
+
 **PROGRAM ::= program : BLOCKF
+
 **PARAM ::= VARTYPE ID { , VARTYPE ID }
+
 **BLOCKF ::= DECLVAR | INSTFF
+
 **INSTFF ::= INSTF ;
+
 **DECLVAR ::= { static } { const } VARTYPE ID { <- EXP } { , VARTYPE ID { <- EXP } } ;
+
 **BLOCKF
+
 **INSTF ::= INST
+
 **INST ::= LOOP | IF | READ | WRITE | DELAY | INTERRUPT | ID X | ε
 **X ::= AFFECT | CALLFONC
 **INTERRUPT ::= sei() ; EXTINTERRUPT | PCINTERRUPT
