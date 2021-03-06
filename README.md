@@ -14,11 +14,9 @@ Grammaire Utilise :
 
 **BLOCKF ::= DECLVAR | INSTFF
 
-**INSTFF ::= INSTF ;
+**INSTFF ::= INSTF ; { INSTF ; }
 
-**DECLVAR ::= { static } { const } VARTYPE ID { <- EXP } { , VARTYPE ID { <- EXP } } ;
-
-**BLOCKF
+**DECLVAR ::= { static } { const } VARTYPE ID { <- EXP } { , VARTYPE ID { <- EXP } } ; BLOCKF
 
 **INSTF ::= INST
 
@@ -60,7 +58,7 @@ Grammaire Utilise :
 
 **EXPR ::= ID | NUM | ( EXP )
 
-**RELOP ::= AFFECTARITH | AFFECTLOG | ε
+**RELOP ::= AFFECTARITH EXPR | AFFECTLOG EXPR | ε
 
 **PORTX ::= PORT LETTER DIGIT
 
@@ -76,9 +74,9 @@ Grammaire Utilise :
 
 **COMP ::= < | ≤ | > | ≥ | = | !=
 
-**CALLFONC ::= ( ID )
+**CALLFONC ::= ( ID { , ID } ) 
 
-**VARTYPE ::= char | { unsigned | signed } int | float | double | void
+**VARTYPE ::= char |  unsint | sint | int | float | double | void
 
 **ID ::= LETTER { LETTER | DIGIT }
 
