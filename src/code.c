@@ -56,12 +56,14 @@ void Separateur(){
                 		CarSuiv();
                 		break;
                 	}
+                	else if (car_cour == EOF)
+                		break;
                 }
             }
             else 
-                Erreur("Error in comment, open brace");
+                Erreur("Error in comment");
             if(car_cour != '#')
-                Erreur("Error in comment, close brace");
+                Erreur("Error in comment 2");
             CarSuiv();
         }
 	}
