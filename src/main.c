@@ -13,5 +13,6 @@ int main(){
         SymboleSuiv();
     }while(strcmp(token_cour.code,"EOF"));
     afficherSequences(L);
+    Port();
     return 1;
 } 
