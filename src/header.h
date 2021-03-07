@@ -19,7 +19,7 @@
 
 typedef enum 
 {
-	ENDPROGRAM, IN, OUT, RETURN, ENDFONCT, PROGRAM, STATIC, CONST, SEI, EINTERRUPT, PCINTERRUPT, ENDINTER, UP, DOWN, INT0, INT1, WAIT, WHILE, ENDWHILE, DO, ENDDO, FOR, ENDFOR, IF, ELSE, ENDIF, READ, WRITE, CHAR, UNSINT, SINT, INT, FLOAT, DOUBLE, VOID 
+	ENDPROGRAM, IN, OUT, RETURN, ENDFONCT, PROGRAM, SEI, EINTERRUPT, PCINTERRUPT, ENDINTER, UP, DOWN, INT0, INT1, WAIT, WHILE, ENDWHILE, DO, ENDDO, FOR, ENDFOR, IF, ELSE, ENDIF, READ, WRITE, CHAR, UNSINT, SINT, INT, FLOAT, DOUBLE, VOID, STATIC, CONST 
 } keyword_token;
 typedef enum 
 {
@@ -86,4 +86,26 @@ extern chaineToken* importToken(int nligne, char *nom, char *code);
 extern listeSequence insererSequence(chaineToken *seq,listeSequence liste);
 extern void afficherSequences(listeSequence list);
 
+
+bool verifyToken(char *code);
+void Port();
+void VarTypeId();
+void Fonct();
+void DeclarVar();
+void BlockF();
+void Exp();
+void Expr();
+bool Inst();
+void If();
+void Write();
+void Read();
+void Wait();
+void Do();
+void For();
+void Aff();
+void CallF();
+void eInterrupt();
+void pcInterrupt();
+void While();
+void Program();
 #endif
