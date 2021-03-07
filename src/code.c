@@ -1,6 +1,6 @@
 #include "header.h"
 
-const char* keyword_token_list[]={ "ENDPROGRAM", "IN", "OUT", "RETURN", "ENDFONCT", "PROGRAM", "STATIC", "CONST", "SEI", "EINTERRUPT", "PCINTERRUPT", "ENDINTER", "UP", "DOWN", "INT0", "INT1", "WAIT", "WHILE", "ENDWHILE", "DO", "ENDDO", "FOR", "ENDFOR", "IF", "ELSE", "ENDIF", "READ", "WRITE", "CHAR", "UNSINT", "SINT", "INT", "FLOAT", "DOUBLE", "VOID"};
+const char* keyword_token_list[]={ "ENDPROGRAM", "IN", "OUT", "RETURN", "ENDFONCT", "PROGRAM", "SEI", "EINTERRUPT", "PCINTERRUPT", "ENDINTER", "UP", "DOWN", "INT0", "INT1", "WAIT", "WHILE", "ENDWHILE", "DO", "ENDDO", "FOR", "ENDFOR", "IF", "ELSE", "ENDIF", "READ", "WRITE", "CHAR", "UNSINT", "SINT", "INT", "FLOAT", "DOUBLE", "VOID", "STATIC", "CONST"};
 const char* special_token_list[]={"PV", "MOD", "PLUS", "MOINS", "MULT", "DIV", "VIR", "AFF", "INF", "INFEG", "SUP", "SUPEG", "DIFF", "PO", "PF", "EG", "AND", "OR", "DP"};
 const char* port_token_list[]={"DDRB", "DDRB0", "DDRB1", "DDRB2", "DDRB3", "DDRB4", "DDRB5", "DDRB6", "DDRB7", "DDRD", "DDRD0", "DDRD1", "DDRD2", "DDRD3", "DDRD4", "DDRD5", "DDRD6", "DDRD7", "DDRC", "DDRC0", "DDRC1", "DDRC2", "DDRC3", "DDRC4", "DDRC5", "DDRC6"};
 const char* por_token_list[]={"PORT", "PORTB", "PORTB0", "PORTB1", "PORTB2", "PORTB3", "PORTB4", "PORTB5", "PORTB6", "PORTB7", "PORTD", "PORTD0", "PORTD1", "PORTD2", "PORTD3", "PORTD4", "PORTD5", "PORTD6", "PORTD7", "PORTC", "PORTC0", "PORTC1", "PORTC2", "PORTC3", "PORTC4", "PORTC5", "PORTC6"};
@@ -215,4 +215,442 @@ void afficherSequences(listeSequence liste){
 		li=li->suivant;
 	}
 	return;
+}
+
+// ########################################Syntaxique####################################################################
+
+bool verifyToken(char *code){
+	if(strcmp(L->infos->codeToken, code) == 0){
+		L=L->suivant;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+void SyntaxError(char *err){
+    printf("line : %d Syntax Error : %s\n",L->infos->numLigne, err);
+}
+
+void Port(){
+	int compa = 1, countp = 0, countv = 26;
+    verifyToken("PORT");
+    if(!verifyToken("PO"))
+    	SyntaxError("PO");
+    while (1){
+    	while( (compa = strcmp(L->infos->codeToken, port_token_list[countp++]) != 0) && countp < NUMPORTTOKEN);
+    	L=L->suivant;
+    	if(compa != 0){
+    		SyntaxError("DDR");
+    	}
+    	if(!verifyToken("DP"))
+    		SyntaxError("DP");
+    	if(strcmp(L->infos->codeToken, "IN") != 0 && strcmp(L->infos->codeToken, "OUT") != 0)
+    		SyntaxError("DIRECTION");
+    	L=L->suivant;
+    	if(!verifyToken("PV"))
+    		SyntaxError("PV");
+    	if(strcmp(L->infos->codeToken, "PF") == 0){
+    		L=L->suivant;
+    		break;
+    	}
+    	else if(strcmp(L->infos->codeToken, "PROGRAM") == 0){
+    		SyntaxError("PF");
+    		break;
+    	}
+   		while( (compa = strcmp(L->infos->codeToken, keyword_token_list[countv++]) != 0) && countv < NUMKEYWORDTOKEN);
+   		if(compa == 0){
+   			SyntaxError("PF");
+    		break;
+    	}
+    	countp = 0;
+    	countv = 28;
+    }
+    Fonct();
+    Program();
+}
+void VarTypeId(){
+	int c = 26, compa;
+	while( (compa = strcmp(L->infos->codeToken, keyword_token_list[c++]) != 0) && c < NUMKEYWORDTOKEN);
+	if(compa != 0)
+		SyntaxError("VarType");
+	L=L->suivant;
+	if(!verifyToken("ID"))
+		SyntaxError("ID");
+}
+void Fonct(){
+	VarTypeId();
+	if(!verifyToken("PO"))
+    	SyntaxError("PO");
+    while(1){
+    	VarTypeId();
+    	if(strcmp(L->infos->codeToken, "PF")==0){
+    		L=L->suivant;
+    		if(strcmp(L->infos->codeToken, "DP")!=0)
+    			SyntaxError("DP");
+    		else
+    			L=L->suivant;
+    		break;
+    	}
+    	else if(strcmp(L->infos->codeToken, "DP")==0){
+    		L=L->suivant;
+    		SyntaxError("PF");
+    		break;
+    	}
+    	else if(!verifyToken("VIR"))
+    		SyntaxError("VIR");
+    }
+    BlockF();
+    if(!verifyToken("ENDFONCT"))
+    	SyntaxError("ENDFONCT");
+}
+
+void Program(){
+	if (!verifyToken("PROGRAM"))
+	{
+		SyntaxError("PROOO");
+	}
+	if (!verifyToken("DP"))
+	{
+		SyntaxError("DPPRO");
+	}
+	BlockF();
+    if(!verifyToken("ENDPROGRAM"))
+    	SyntaxError("ENDPPP");
+}
+
+void BlockF(){
+	int c = 26, compa=1;
+	while( (compa = strcmp(L->infos->codeToken, keyword_token_list[c++]) != 0) && c < NUMKEYWORDTOKEN);
+	if(compa == 0){
+		
+		DeclarVar();
+	}
+	else{
+		while(Inst());
+		return;
+	}
+}
+
+void DeclarVar(){
+	while(1){
+		VarTypeId();
+		if(verifyToken("PV"))
+			break;
+		else if(verifyToken("AFF")){
+			Expr();
+			if(verifyToken("PV"))
+				break;
+			else if(strcmp(L->infos->codeToken, "VIR")!=0){
+				SyntaxError("VAR2");
+				break;
+			}
+		}
+		else if(strcmp(L->infos->codeToken, "VIR")!=0){
+			SyntaxError("VAR3");
+			break;
+		}
+	}
+	BlockF();
+}
+
+void Exp(){
+	Expr();
+	if (verifyToken("EG"))
+	{
+		Expr();
+	}
+	else if (verifyToken("PLUS"))
+	{
+		Expr();
+	}
+	else if (verifyToken("MOINS"))
+	{
+		Expr();
+	}else if (verifyToken("MULT"))
+	{
+		Expr();
+	}else if (verifyToken("DIV"))
+	{
+		Expr();
+	}else if (verifyToken("INF"))
+	{
+		Expr();
+	}
+	else if (verifyToken("INFEG"))
+	{
+		Expr();
+	}else if (verifyToken("SUP"))
+	{
+		Expr();
+	}else if (verifyToken("SUPEG"))
+	{
+		Expr();
+	}else if (verifyToken("MOD"))
+	{
+		Expr();
+	}else if (verifyToken("AND"))
+	{
+		Expr();
+	}else if (verifyToken("OR"))
+	{
+		Expr();
+	}
+	else{
+		return;
+	}
+}
+
+void Expr(){
+	int pp=0;
+	if(verifyToken("ID")){
+	}
+	else if (verifyToken("NUM"))
+	{
+	}
+	else if (verifyToken("PO"))
+	{
+		Exp();
+		if(!verifyToken("PF"))
+			SyntaxError("A close brace is forgotten EXPR");
+	}
+	else{
+		pp=1;
+		SyntaxError("FACT");
+	}
+}
+
+bool Inst(){
+	if (verifyToken("FOR"))
+	{
+		For();
+		return TRUE;
+	}
+	else if (verifyToken("ID"))
+	{
+		if (verifyToken("AFF")){
+			Aff();
+		}
+		else if(verifyToken("CALLFONC"))
+			CallF();
+		else
+			SyntaxError("IDD");
+		return TRUE;
+	}
+	else if (verifyToken("IF"))
+	{
+		If();
+		return TRUE;
+	}else if (verifyToken("WHILE"))
+	{
+		While();
+		return TRUE;
+	}else if (verifyToken("WRITE"))
+	{
+		Write();
+		return TRUE;
+	}else if (verifyToken("READ"))
+	{
+		Read();
+		return TRUE;
+	}else if (verifyToken("WAIT"))
+	{
+		Wait();
+		return TRUE;
+	}else if (verifyToken("INTERRUPT"))
+	{
+		if(verifyToken("EINTERRUPT"))
+			eInterrupt();
+		else if (verifyToken("PCINTERRUPT"))
+			pcInterrupt();
+		return TRUE;
+	}else if (verifyToken("DO"))
+	{
+		Do();
+		return TRUE;
+	}
+	else{
+		return FALSE;
+	}
+
+}
+
+void If(){
+    if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten ");
+    Exp();
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is  IF ");
+    if(!verifyToken("DP"))
+    	SyntaxError("A : if ");
+    while(Inst());
+    if(verifyToken("ELSE")){
+    	while(Inst());
+    }
+    if (!verifyToken("ENDIF"))
+    {
+    	SyntaxError("ENDIF");
+    }
+}
+
+void Write(){
+	int compa, c=0;
+    if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten write");
+    while( (compa = strcmp(L->infos->codeToken, por_token_list[c++]) != 0) && c < NUMPORTTOKEN);
+    if(compa!=0)
+    	SyntaxError("PORTX");
+    L=L->suivant;
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten write");
+}
+
+void Read(){
+	int compa, c=0;
+	if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten ");
+    while( (compa = strcmp(L->infos->codeToken, pin_token_list[c++]) != 0) && c < NUMPORTTOKEN);
+    if(compa!=0)
+    	SyntaxError("PORTX");
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+}
+
+void Wait(){
+	if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten ");
+    if(!verifyToken("NUM"))
+    	SyntaxError("NUMwait");
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+}
+
+void Do(){
+	while(Inst());
+	if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	Exp();
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("ENDDO"))
+    	SyntaxError("ENDDO");
+
+}
+void For(){
+	if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten ");
+    for(int i = 0; i<3; i++){
+    	if(!verifyToken("NUM"))
+    		SyntaxError("NUM");
+    }
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("DP"))
+    	SyntaxError("A : for ");
+    while(Inst());
+    if (!verifyToken("ENDFOR"))
+    {
+    	SyntaxError("ENDFOR");
+    }
+}
+
+void Aff(){
+	if(strcmp(L->infos->codeToken, "WRITE")==0){
+		L=L->suivant;
+		Write();
+	}
+	else if(strcmp(L->infos->codeToken, "READ")==0){
+		L=L->suivant;
+		Read();
+	}
+	else{
+		Expr();
+	}
+	
+	if (!verifyToken("PV"))
+	{
+		SyntaxError("PVAFF");
+	}
+}
+
+void CallF(){
+	if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	while(!verifyToken("PF")){
+		if (!verifyToken("ID"))
+		{
+			SyntaxError("IDPARAM");
+			break;
+		}
+	}
+	if (!verifyToken("PV"))
+	{
+		SyntaxError("PVAFF");
+	}
+}
+
+void eInterrupt(){
+	if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	if(strcmp(L->infos->codeToken, "UP")!=0 && strcmp(L->infos->codeToken, "DOWN")!=0){
+		SyntaxError("FRONT");
+		L=L->suivant;
+	}
+	if(strcmp(L->infos->codeToken, "INT0")!=0 && strcmp(L->infos->codeToken, "INT1")!=0){
+		SyntaxError("INT");
+		L=L->suivant;
+	}
+	if(!verifyToken("NUM"))
+		SyntaxError("NUMEI");
+	if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	while(Inst());
+	if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("ENDINTER"))
+    	SyntaxError("ENDINTER");
+
+}
+
+void pcInterrupt(){
+	int compa, c=0 ;
+	if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	while( (compa = strcmp(L->infos->codeToken, pcie_token_list[c++]) != 0) && c < NUMPCIETOKEN);
+	c=0;
+	if(compa == 0){
+		L=L->suivant;
+		while( (compa = strcmp(L->infos->codeToken, pcie_token_list[c++]) != 0) && c < NUMPCIETOKEN);
+		if(compa==0)
+			L=L->suivant;
+		else
+			SyntaxError("PCINT");
+	}
+	else
+		SyntaxError("PC");
+	if(!verifyToken("NUM"))
+		SyntaxError("NUMEI");
+	if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("PO"))
+		SyntaxError("An open brace is forgotten ");
+	while(Inst());
+	if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("ENDINTER"))
+    	SyntaxError("ENDINTER");
+}
+
+void While(){
+	if(!verifyToken("PO"))
+    	SyntaxError("An open brace is forgotten ");
+    Exp();
+    if(!verifyToken("PF"))
+    	SyntaxError("A close brace is forgotten ");
+    if(!verifyToken("DP"))
+    	SyntaxError("A : if ");
+    while(Inst());
+    if(!verifyToken("ENDWHILE"))
+    	SyntaxError("ENDWHILE");
 }
