@@ -96,6 +96,10 @@ bool lire_mot(){
 		while( (comp = strcmp(mot, pin_token_list[countL++])) !=0 && countL < NUMPORTTOKEN );
 		pp=3;
 	}
+	else if (mot[0]=='P' && mot[1]=='C' && strlen(mot)<8){
+		while( (comp = strcmp(mot, pcie_token_list[countL++])) !=0 && countL < NUMPCIETOKEN );
+		pp=4;
+	}
 	else
 		while( (comp = strcmp(mot, keyword_token_list[countL++])) !=0 && countL < NUMKEYWORDTOKEN );
 	if( comp == 0 && pp==0){
@@ -114,7 +118,10 @@ bool lire_mot(){
 		strcpy(token_cour.code, pin_token_list[countL-1]);
 		strcpy(token_cour.nom, mot);
 	}
-
+	else if( comp == 0 && pp == 4){
+		strcpy(token_cour.code, pcie_token_list[countL-1]);
+		strcpy(token_cour.nom, mot);
+	}
 	else{
 		strcpy(token_cour.code, "ID");
 		strcpy(token_cour.nom, mot);
@@ -300,6 +307,13 @@ void Fonct(){
     		SyntaxError("VIR");
     }
     BlockF();
+    if(!verifyToken("RETURN"))
+    	SyntaxError("RETURN");
+    Exp();
+    if (!verifyToken("PV"))
+	{
+		SyntaxError("PVAFON");
+	}
     if(!verifyToken("ENDFONCT"))
     	SyntaxError("ENDFONCT");
 }
@@ -430,10 +444,12 @@ bool Inst(){
 		if (verifyToken("AFF")){
 			Aff();
 		}
-		else if(verifyToken("CALLFONC"))
+		else if(verifyToken("PO"))
 			CallF();
-		else
+		else{
+			printf("%s\n",L->infos->nomToken );
 			SyntaxError("IDD");
+		}
 		return TRUE;
 	}
 	else if (verifyToken("IF"))
@@ -456,12 +472,13 @@ bool Inst(){
 	{
 		Wait();
 		return TRUE;
-	}else if (verifyToken("INTERRUPT"))
+	}else if (verifyToken("EINTERRUPT"))
 	{
-		if(verifyToken("EINTERRUPT"))
-			eInterrupt();
-		else if (verifyToken("PCINTERRUPT"))
-			pcInterrupt();
+		eInterrupt();
+		return TRUE;
+	}else if (verifyToken("PCINTERRUPT"))
+	{
+		pcInterrupt();
 		return TRUE;
 	}else if (verifyToken("DO"))
 	{
@@ -573,8 +590,6 @@ void Aff(){
 }
 
 void CallF(){
-	if(!verifyToken("PO"))
-		SyntaxError("An open brace is forgotten ");
 	while(!verifyToken("PF")){
 		if (!verifyToken("ID"))
 		{
@@ -595,10 +610,19 @@ void eInterrupt(){
 		SyntaxError("FRONT");
 		L=L->suivant;
 	}
+	else
+		L=L->suivant;
+	if(!verifyToken("VIR"))
+		SyntaxError("VIRINT");
 	if(strcmp(L->infos->codeToken, "INT0")!=0 && strcmp(L->infos->codeToken, "INT1")!=0){
+		printf("no\n");
 		SyntaxError("INT");
 		L=L->suivant;
 	}
+	else
+		L=L->suivant;
+	if(!verifyToken("VIR"))
+		SyntaxError("VIRINT");
 	if(!verifyToken("NUM"))
 		SyntaxError("NUMEI");
 	if(!verifyToken("PF"))
@@ -621,11 +645,20 @@ void pcInterrupt(){
 	c=0;
 	if(compa == 0){
 		L=L->suivant;
+		if(!verifyToken("VIR"))
+			SyntaxError("VIRINT");
 		while( (compa = strcmp(L->infos->codeToken, pcie_token_list[c++]) != 0) && c < NUMPCIETOKEN);
-		if(compa==0)
+		if(compa==0){
 			L=L->suivant;
-		else
+			if(!verifyToken("VIR"))
+				SyntaxError("VIRINT");
+		}
+		else{
+			L=L->suivant;
+			if(!verifyToken("VIR"))
+				SyntaxError("VIRINT");
 			SyntaxError("PCINT");
+		}
 	}
 	else
 		SyntaxError("PC");
