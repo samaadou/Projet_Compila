@@ -1,6 +1,18 @@
-port ( DDRB3 :  IN ;)
+port ( DDRB3 :  IN ;
+DDRB3 :  OUT ; )
 
-Program :
-int x ;
-x <- <= read ( PINB ) ;
+void dire( int a, int b) : 
+int a;
+char b <- ( a + 2 ) ;
+if(a = b):
+x <- a;
+endif
+endFonct
+
+program :
+int c <- 1 ;
+c <- Write(PORTB3) ;
+while( a ) :
+endWhile
 endProgram
+
