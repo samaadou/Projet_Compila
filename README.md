@@ -20,7 +20,7 @@ Grammaire Utilise :
 
 **INSTF ::= INST
 
-**INST ::= LOOP | IF | READ | WRITE | DELAY | INTERRUPT | ID X | ε
+**INST ::= LOOP | IF | DELAY | INTERRUPT | ID X | ε
 
 **X ::= AFFECT | CALLFONC
 
@@ -64,7 +64,9 @@ Grammaire Utilise :
 
 **PINX::= PIN LETTER DIGIT
 
-**AFFECT ::= <- EXPR
+**AFFECT ::= <- Y
+
+**Y ::= <- EXPR | WRITE | READ 
 
 **AFFECTARITH ::= + | - | * | / | %
 
