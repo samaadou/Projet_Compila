@@ -74,6 +74,7 @@ listeSequence L;
 
 char car_cour;
 Token token_cour;
+// ########################################Lexical####################################################################
 
 extern void SymboleSuiv();
 extern char CarSuiv();
@@ -86,6 +87,7 @@ extern chaineToken* importToken(int nligne, char *nom, char *code);
 extern listeSequence insererSequence(chaineToken *seq,listeSequence liste);
 extern void afficherSequences(listeSequence list);
 
+// ########################################Syntaxique####################################################################
 
 bool verifyToken(char *code);
 void Port();
