@@ -53,7 +53,6 @@ void Separateur(){
                 while(1){
                 	CarSuiv();
                 	if(car_cour == '#'){
-                		CarSuiv();
                 		break;
                 	}
                 	else if (car_cour == EOF)
@@ -217,17 +216,20 @@ void afficherSequences(listeSequence liste){
 	int stop = 0;
 	listeSequence li;
 	li = liste;
+	printf("numLigne nomToken : codeToken \n" );
 	while(li != NULL){
-		printf("%d\t%s\t : %s  %d\n",li->infos->numLigne,li->infos->nomToken,li->infos->codeToken, li->infos->ifNum);
+		printf("%d\t%s\t : %s  \n",li->infos->numLigne,li->infos->nomToken,li->infos->codeToken);
 		li=li->suivant;
 	}
 	return;
 }
 
 // ########################################Syntaxique####################################################################
-
+int nlig;
 bool verifyToken(char *code){
+	
 	if(strcmp(L->infos->codeToken, code) == 0){
+		nlig = L->infos->numLigne;
 		L=L->suivant;
 		return TRUE;
 	}
@@ -235,14 +237,14 @@ bool verifyToken(char *code){
 }
 
 void SyntaxError(char *err){
-    printf("line : %d Syntax Error : %s\n",L->infos->numLigne, err);
+    printf("line : %d Syntax Error : %s\n",nlig, err);
 }
 
 void Port(){
 	int compa = 1, countp = 0, countv = 26;
     verifyToken("PORT");
     if(!verifyToken("PO"))
-    	SyntaxError("PO");
+    	SyntaxError("PO PORT");
     while (1){
     	while( (compa = strcmp(L->infos->codeToken, port_token_list[countp++]) != 0) && countp < NUMPORTTOKEN);
     	L=L->suivant;
@@ -250,23 +252,23 @@ void Port(){
     		SyntaxError("DDR");
     	}
     	if(!verifyToken("DP"))
-    		SyntaxError("DP");
+    		SyntaxError("DP PORT");
     	if(strcmp(L->infos->codeToken, "IN") != 0 && strcmp(L->infos->codeToken, "OUT") != 0)
-    		SyntaxError("DIRECTION");
+    		SyntaxError("DIRECTION PORT");
     	L=L->suivant;
     	if(!verifyToken("PV"))
-    		SyntaxError("PV");
+    		SyntaxError("PV PORT");
     	if(strcmp(L->infos->codeToken, "PF") == 0){
     		L=L->suivant;
     		break;
     	}
     	else if(strcmp(L->infos->codeToken, "PROGRAM") == 0){
-    		SyntaxError("PF");
+    		SyntaxError("PF PORT");
     		break;
     	}
    		while( (compa = strcmp(L->infos->codeToken, keyword_token_list[countv++]) != 0) && countv < NUMKEYWORDTOKEN);
    		if(compa == 0){
-   			SyntaxError("PF");
+   			SyntaxError("PF PORT");
     		break;
     	}
     	countp = 0;
@@ -277,34 +279,38 @@ void Port(){
 }
 void VarTypeId(){
 	int c = 26, compa;
-	while( (compa = strcmp(L->infos->codeToken, keyword_token_list[c++]) != 0) && c < NUMKEYWORDTOKEN);
-	if(compa != 0)
-		SyntaxError("VarType");
-	L=L->suivant;
-	if(!verifyToken("ID"))
-		SyntaxError("ID");
+	
+		while( (compa = strcmp(L->infos->codeToken, keyword_token_list[c++]) != 0) && c < NUMKEYWORDTOKEN);
+		if(compa != 0){
+			printf("%s\n", L->infos->nomToken);
+			SyntaxError("VarTypeID");
+		}
+		L=L->suivant;
+		if(!verifyToken("ID"))
+			SyntaxError("ID");
+
 }
 void Fonct(){
 	VarTypeId();
 	if(!verifyToken("PO"))
-    	SyntaxError("PO");
+    	SyntaxError("PO FONCT");
     while(1){
     	VarTypeId();
     	if(strcmp(L->infos->codeToken, "PF")==0){
     		L=L->suivant;
     		if(strcmp(L->infos->codeToken, "DP")!=0)
-    			SyntaxError("DP");
+    			SyntaxError("DP FONCT");
     		else
     			L=L->suivant;
     		break;
     	}
     	else if(strcmp(L->infos->codeToken, "DP")==0){
     		L=L->suivant;
-    		SyntaxError("PF");
+    		SyntaxError("PF FONCT");
     		break;
     	}
     	else if(!verifyToken("VIR"))
-    		SyntaxError("VIR");
+    		SyntaxError("VIR FONCT");
     }
     BlockF();
     if(!verifyToken("RETURN"))
@@ -321,22 +327,21 @@ void Fonct(){
 void Program(){
 	if (!verifyToken("PROGRAM"))
 	{
-		SyntaxError("PROOO");
+		SyntaxError("PROGRAM");
 	}
 	if (!verifyToken("DP"))
 	{
-		SyntaxError("DPPRO");
+		SyntaxError("DP PROGRAM");
 	}
 	BlockF();
     if(!verifyToken("ENDPROGRAM"))
-    	SyntaxError("ENDPPP");
+    	SyntaxError("ENDPROGRAM");
 }
 
 void BlockF(){
 	int c = 26, compa=1;
 	while( (compa = strcmp(L->infos->codeToken, keyword_token_list[c++]) != 0) && c < NUMKEYWORDTOKEN);
 	if(compa == 0){
-		
 		DeclarVar();
 	}
 	else{
@@ -354,8 +359,12 @@ void DeclarVar(){
 			Expr();
 			if(verifyToken("PV"))
 				break;
+			else if(strcmp(L->infos->codeToken, "VIR")==0){
+				L=L->suivant;
+				break;
+			}
 			else if(strcmp(L->infos->codeToken, "VIR")!=0){
-				SyntaxError("VAR2");
+				SyntaxError("VIR AFF");
 				break;
 			}
 		}
@@ -472,13 +481,24 @@ bool Inst(){
 	{
 		Wait();
 		return TRUE;
-	}else if (verifyToken("EINTERRUPT"))
+	}else if (verifyToken("SEI"))
 	{
-		eInterrupt();
-		return TRUE;
-	}else if (verifyToken("PCINTERRUPT"))
-	{
-		pcInterrupt();
+		if(!verifyToken("PO"))
+    		SyntaxError("PO SEI");
+    	if(!verifyToken("PF"))
+    		SyntaxError("PF SEI");
+		if (!verifyToken("PV"))
+		{
+			SyntaxError("PV SEI");
+		}
+		if (verifyToken("EINTERRUPT")){
+			eInterrupt();
+			return TRUE;
+		}
+		else if (verifyToken("PCINTERRUPT")){
+			eInterrupt();
+			return TRUE;
+		}
 		return TRUE;
 	}else if (verifyToken("DO"))
 	{
@@ -488,7 +508,6 @@ bool Inst(){
 	else{
 		return FALSE;
 	}
-
 }
 
 void If(){
@@ -526,10 +545,11 @@ void Read(){
 	if(!verifyToken("PO"))
     	SyntaxError("An open brace is forgotten ");
     while( (compa = strcmp(L->infos->codeToken, pin_token_list[c++]) != 0) && c < NUMPORTTOKEN);
+    L=L->suivant;
     if(compa!=0)
     	SyntaxError("PORTX");
     if(!verifyToken("PF"))
-    	SyntaxError("A close brace is forgotten ");
+    	SyntaxError("A close brace is forgotten 3");
 }
 
 void Wait(){
@@ -582,7 +602,6 @@ void Aff(){
 	else{
 		Expr();
 	}
-	
 	if (!verifyToken("PV"))
 	{
 		SyntaxError("PVAFF");
