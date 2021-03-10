@@ -1,18 +1,25 @@
 port ( DDRB3 :  IN ;
-DDRB3 :  OUT ; )
-
-void dire( int a, int b) : 
-int a;
-char b <- ( a + 2 ) ;
+DDRC5 :  OUT ; )
+## comment # 
+void somme( int a, int b) : 
+int x;
 if(a = b):
 x <- a;
+else 
+x <- ( a + b ) ;
 endif
+return x ;
 endFonct
 
 program :
-int c <- 1 ;
-c <- Write(PORTB3) ;
-while( a ) :
+int c ;
+int a <- 2 , int b <- 3 ;
+c <- Read( PINB3 ) ;
+while( 1 ) :
+sei() ;
+einterrupt(up, INT0 , 0 ) 
+(c <- write(PORTC5) ; ) 
+endinter
 endWhile
 endProgram
 
